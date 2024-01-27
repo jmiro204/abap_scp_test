@@ -1,0 +1,88 @@
+managed implementation in class zbp_so_cds_i_escandallo_head unique;
+strict;
+with draft;
+
+define behavior for zso_cds_i_escandallo_head alias Head //alias <alias_name>
+//persistent table zso_t_escanda_h
+with unmanaged save
+draft table zso_t_escanda_hd
+lock master
+total etag LastChangedAt
+authorization master ( instance )
+etag master LocalLastChangedAt
+{
+
+  field ( readonly : update ) Trans, Artor, Artdest; //, ArtorEdit, ArtdestEdit;
+  field ( readonly ) LocalCreatedBy, LocalCreatedAt, LocalLastChangedBy, LocalLastChangedAt, LastChangedAt;
+  field ( mandatory : create ) Trans, Artor, Artdest;//, ArtorEdit, ArtdestEdit;
+  field ( features : instance ) ArtorEdit, ArtdestEdit;
+  create;
+  update;
+  delete;
+  association _Items { create; with draft; }
+
+  draft action Edit;
+  draft action Activate optimized;
+  draft action Discard;
+  draft action Resume;
+  draft determine action Prepare;
+
+  static default factory action customCreate parameter zso_cds_abs_esc [1];
+
+  mapping for zso_t_escanda_h control zso_x_escanda_h corresponding
+    {
+      Trans              = trans;
+      ArtorEdit          = artor;
+      ArtdestEdit        = artdest;
+      LocalCreatedBy     = local_created_by;
+      LocalCreatedAt     = local_created_at;
+      LocalLastChangedBy = local_last_changed_by;
+      LocalLastChangedAt = local_last_changed_at;
+      LastChangedAt      = last_changed_at;
+    }
+
+}
+
+define behavior for zso_cds_i_escandallo alias Items  //alias <alias_name>
+//persistent table zso_t_escandallo
+with unmanaged save
+draft table zso_t_escanda_d
+lock dependent by _Escandallo
+authorization dependent by _Escandallo
+etag dependent by _Escandallo
+
+{
+  field ( readonly ) Trans, Artor, Artdest;
+//  field ( mandatory : create )  Artor, Artdest;
+
+//  field ( mandatory ) Relpeso;
+  ////  field ( mandatory : create ) Receta, Artor, Artdest;
+
+  field ( features : instance ) ArtorCodeEdit, ArtdestCodeEdit, RecetaDesc;
+  update;
+  delete;
+  association _Escandallo { with draft; }
+
+  validation validDescReceta on save { field RecetaDesc; }
+
+  determination setArtOrgDest on modify { create; update; field ArtorCodeEdit, ArtdestCodeEdit, Receta; }
+
+  static default factory action customCreateItem parameter ZSO_CDS_ABS_ESC_REC [1];
+
+  mapping for zso_t_escanda_i control zso_x_escanda corresponding
+    {
+      Trans           = trans;
+      Artor           = artor;
+      Receta          = receta;
+      Artdest         = artdest;
+      Relpeso         = relpeso;
+      ArtorCodeEdit   = artor_code;
+      Cantorg         = cantorg;
+      Uomort          = uomort;
+      ArtdestCodeEdit = artdest_code;
+      Cantdest        = cantdest;
+      Uomdest         = uomdest;
+    }
+
+
+}

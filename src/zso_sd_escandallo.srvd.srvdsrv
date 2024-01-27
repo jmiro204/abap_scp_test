@@ -1,0 +1,5 @@
+@EndUserText.label: 'Service Definition'
+define service Zso_sd_escandallo {
+  expose zso_cds_c_escandallo_head  as Head;
+  expose zso_cds_c_escandallo_items as Items;
+}
